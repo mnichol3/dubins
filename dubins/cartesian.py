@@ -1,8 +1,8 @@
 """Math functions for the Cartesian coordinate system."""
 from math import sqrt
 
-from mathlib import arctan2, cos, sin
-from util import round_return
+from .mathlib import arctan2, cos, sin
+from .util import round_return
 
 
 def azimuth(val: float) -> float:

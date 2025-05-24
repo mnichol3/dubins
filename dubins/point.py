@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from cartesian import calc_distance
-from mathlib import normalize_angle
+from .cartesian import calc_distance
+from .mathlib import normalize_angle
 
 
 class PointBase:

@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from point import Circle
+from .point import Circle
 
 
 def plot_path(

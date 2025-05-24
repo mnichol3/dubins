@@ -5,8 +5,8 @@ from typing import TypeAlias
 
 import math
 
-from point import Circle, Waypoint
-from mathlib import arccos, arctan, arctan2, cos, sin, normalize_angle
+from .point import Circle, Waypoint
+from .mathlib import arccos, arctan, arctan2, cos, sin, normalize_angle
 
 
 Point: TypeAlias = tuple[float, float]
