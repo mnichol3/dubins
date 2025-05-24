@@ -133,16 +133,12 @@ class DubinsPath:
             Turns to execute. Must have a length of 2.
         """
         self.origin = origin
-        self.origin.normalize()
-
         self.terminus = terminus
-        self.terminus.normalize()
-
         self.case = DubinsType.from_turns(turns)
         self.radius = radius
         self.circles = self._init_circles(turns)
 
-        self.psi = self.origin.crs
+        self.psi = self.origin.crs_norm
         self.d = self._calc_d()
         self.theta = self._calc_theta()
 
@@ -173,7 +169,7 @@ class DubinsPath:
         waypoints.extend(self._calc_line_points(waypoints[-1], delta_d))
         waypoints.extend(
             self._calc_arc_points(
-                self.circles[1], self.terminus.crs, delta_psi))
+                self.circles[1], self.terminus.crs_norm, delta_psi))
 
         return waypoints
 
@@ -181,8 +177,8 @@ class DubinsPath:
         """Compute the center of the circles to rotate about."""
         return [
             Circle(
-                point.x + (t.value * self.radius * cos(point.crs)),
-                point.y - (t.value * self.radius * sin(point.crs)),
+                point.x + (t.value * self.radius * cos(point.crs_norm)),
+                point.y - (t.value * self.radius * sin(point.crs_norm)),
                 t.value)
             for point, t in zip([self.origin, self.terminus], turns)
         ]

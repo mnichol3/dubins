@@ -5,7 +5,15 @@ from .mathlib import normalize_angle
 
 
 class PointBase:
-    """Container for a point defined by an x- and y-coordinate."""
+    """Container for a point defined by an x- and y-coordinate.
+
+     Attributes
+    ----------
+    * x: float
+        X-coordinate.
+    * y: float
+        Y-coordinate.
+    """
 
     def __init__(self, x: float, y: float):
         """Container for circle parameters.
@@ -35,7 +43,17 @@ class PointBase:
 
 
 class Circle(PointBase):
-    """Container for circle parameters"""
+    """Container for circle parameters.
+
+    Attributes
+    ----------
+    * x: float
+        X-coordinate of the Circle center.
+    * y: float
+        Y-coordinate of the Circle center.
+    * s: int
+        Rotation direction. 1 for clockwise, -1 for counter-clockwise.
+    """
 
     def __init__(self, x: float, y: float, s: int):
         """Instantiate a new Circle.
@@ -63,7 +81,19 @@ class Circle(PointBase):
 
 class Waypoint(PointBase):
     """Container for a waypoint consisting of an x-coordinate, y-coordinate,
-    and an inbound course."""
+    and an inbound course.
+
+    Attributes
+    ----------
+    * x: float
+        Waypoint x-coordinate.
+    * y: float
+        Waypoint y-coordinate.
+    * crs: float
+        Course, in degrees [0, 360).
+    * crs_norm: float
+        Course, in degrees, normalized to (-180, 180].
+    """
 
     def __init__(self, x: float, y: float, crs: float):
         """Instantiate a new Waypoint.
@@ -79,10 +109,7 @@ class Waypoint(PointBase):
         """
         super().__init__(x, y)
         self.crs = crs % 360.
-
-    def normalize(self) -> None:
-        """Normalize the course to [-180, 180]."""
-        self.crs = round(normalize_angle(self.crs), 2)
+        self.crs_norm = round(normalize_angle(self.crs), 2)
 
     def __repr__(self) -> str:
         """Return a string representation of the object."""
