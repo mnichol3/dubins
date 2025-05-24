@@ -1,7 +1,5 @@
 """Generate a Right-Straight-Left Dubins path."""
-from dubins import DubinsPath, Turn
-from point import Waypoint
-from plotting import plot_path
+from dubins import DubinsPath, Turn, Waypoint, plot_path
 
 
 origin = Waypoint(10, 0, 60)
