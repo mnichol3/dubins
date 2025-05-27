@@ -12,6 +12,11 @@ Point: TypeAlias = tuple[float, float]
 
 
 class DubinsLoopback(DubinsBase):
+    """
+    Class to construct a Dubins "loopback" path, where the size of the turn
+    radius forces the platform to turn away from the terminus point before
+    turning back towards it and completing the path.
+    """
 
     case = DubinsType.LOOPBACK
 
@@ -34,13 +39,21 @@ class DubinsLoopback(DubinsBase):
             Turn radius, in meters.
         turns: list[Turn]
             Turns to execute. Must have a length of 2.
+
+        Notes
+        -----
+        * variable `a` is the angle, measured in degrees from the positive
+          y-axis, between the centers of the two circles forming the arcs
+          of the Dubins path.
+        * variable `h` is something
         """
         super().__init__(origin, terminus, radius)
 
         turn1 = Turn.reverse(turns[0])
         track_spacing = self.origin.distance_to(self.terminus)
         h = sqrt((2 * radius)**2 - track_spacing**2)
-        a = (round(arccos(h / (2 * radius)), 4) + origin.crs) * -turn1.value
+        # a = (round(arccos(h / (2 * radius)), 4) + origin.crs) * -turn1.value
+        a = origin.crs + (-turn1.value * round(arccos(h / (2 * radius)), 4))
 
         circle1 = self._init_circle(origin, turn1)
         self.circles = [

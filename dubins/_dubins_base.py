@@ -101,7 +101,19 @@ class DubinsBase:
         self.radius = radius
 
     def _init_circle(self, point: Waypoint, turn: Turn) -> Circle:
-        """Compute the center a circle to rotate about."""
+        """Compute the center a circle to rotate about.
+
+        Parameters
+        ----------
+        point: Waypoint
+            Either origin or terminus waypoint.
+        turn: Turn
+            Turn direction for the given waypoint.
+
+        Returns
+        -------
+        Circle
+        """
         return Circle(
             point.x + (turn.value * self.radius * cos(point.crs_norm)),
             point.y - (turn.value * self.radius * sin(point.crs_norm)),
