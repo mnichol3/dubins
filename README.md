@@ -8,7 +8,7 @@ A Python module to construct simple Dubins paths.
 
 ## Example Usage
 ```python
-from dubins import DubinsPath, Turn
+from dubins import DubinsCSC, Turn
 from point import Waypoint
 from plotting import plot_path
 
@@ -17,7 +17,7 @@ terminus = Waypoint(0, 4, 120)
 radius = 2
 turns = [Turn.RIGHT, Turn.LEFT]
 
-dub = DubinsPath(origin, terminus, radius, turns)
+dub = DubinsCSC(origin, terminus, radius, turns)
 points = dub.create_path(delta_psi=delta_psi, delta_d=delta_d)
 
 plot_path(points, dub.circles)
