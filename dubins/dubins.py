@@ -1,10 +1,10 @@
 """This module contains classes to construct Dubins paths in Cartesian space."""
 from __future__ import annotations
-from enum import Enum
 from typing import TypeAlias
 
-import math
+from math import sqrt
 
+from ._dubins_base import DubinsBase, DubinsType, Circle, Turn
 from .point import Circle, Waypoint
 from .mathlib import arccos, arctan, arctan2, cos, sin, normalize_angle
 
@@ -12,72 +12,7 @@ from .mathlib import arccos, arctan, arctan2, cos, sin, normalize_angle
 Point: TypeAlias = tuple[float, float]
 
 
-class DubinsType(Enum):
-    """Enum for Dubins path type.
-
-    Members
-    -------
-    LSL: Left-Straight-Left path.
-    RSR: Right-Straight-Right path.
-    LSR: Left-Straight-Right path.
-    RSL: Right-Straight-Left path.
-    """
-    LSL = 1
-    RSR = 2
-    LSR = 3
-    RSL = 4
-
-    @classmethod
-    def from_turns(cls, turns: list[Turn]) -> DubinsType:
-        """Get the DubinsType from a list of Turns.
-
-        Parameters
-        ----------
-        turns: list of Turn
-            Prescribed turns.
-
-        Returns
-        -------
-        DubinsType
-
-        Raises
-        ------
-        ValueError
-            If an invalid combination of turns are passed in the `turns` param.
-        """
-        ttype = None
-        t1, t2 = turns
-
-        if t1 == t2 == Turn.RIGHT:
-            ttype = cls.RSR
-        elif t1 == t2 == Turn.LEFT:
-            ttype = cls.LSL
-        elif t1 == Turn.RIGHT and t2 == Turn.LEFT:
-            ttype = cls.RSL
-        elif t1 == Turn.LEFT and t2 == Turn.RIGHT:
-            ttype = cls.LSR
-        else:
-            raise ValueError(f'Invalid turn combination: {turns}')
-
-        return ttype
-
-
-class Turn(Enum):
-    """Enum for turn direction."""
-    LEFT = -1
-    RIGHT = 1
-
-    @classmethod
-    def reverse(cls, turn: Turn) -> Turn:
-        """Return a new Turn in the direction opposite of the given Turn."""
-        if not isinstance(turn, Turn):
-            raise TypeError(
-                f'turn parameter must be of type Turn, got {type(turn)}')
-
-        return Turn.RIGHT if turn == Turn.LEFT else Turn.LEFT
-
-
-class DubinsPath:
+class DubinsPath(DubinsBase):
     """Class to compute Dubins paths in Cartesian space.
 
     Example usage
@@ -132,15 +67,14 @@ class DubinsPath:
         turns: list[Turn]
             Turns to execute. Must have a length of 2.
         """
-        self.origin = origin
-        self.terminus = terminus
+        super().__init__(origin, terminus, radius)
         self.case = DubinsType.from_turns(turns)
-        self.radius = radius
         self.circles = self._init_circles(turns)
 
         self.psi = self.origin.crs_norm
         self.d = self._calc_d()
         self.theta = self._calc_theta()
+        import pdb; pdb.set_trace()
 
     def create_path(
         self,
@@ -176,46 +110,8 @@ class DubinsPath:
     def _init_circles(self, turns: list[Turn]) -> list[Circle]:
         """Compute the center of the circles to rotate about."""
         return [
-            Circle(
-                point.x + (t.value * self.radius * cos(point.crs_norm)),
-                point.y - (t.value * self.radius * sin(point.crs_norm)),
-                t.value)
-            for point, t in zip([self.origin, self.terminus], turns)
-        ]
-
-    def _calc_arc_points(
-        self,
-        circle: Circle,
-        psi_f: float,
-        delta_psi: float,
-    ) -> list[Point]:
-        """Compute the points along an arc defined by a circle.
-
-        Parameters
-        ----------
-        circle: Circle
-            Circle to rotate about.
-        psi_f: float
-            Final heading.
-        delta_psi: float
-            Interval at which to compute arc points, in degrees.
-
-        Returns
-        -------
-        list of Point
-        """
-        waypoints = []
-        psi_f = round(psi_f, 2)
-
-        while abs(self.psi - psi_f) > delta_psi:
-            waypoints.append((
-                circle.x - (circle.s * self.radius * sin(90 - self.psi)),
-                circle.y + (circle.s * self.radius * cos(90 - self.psi)),
-            ))
-
-            self.psi = normalize_angle(self.psi + delta_psi * circle.s)
-
-        return waypoints
+            self._init_circle(point, t)
+            for point, t in zip([self.origin, self.terminus], turns)]
 
     def _calc_line_points(self, origin: Point, delta: float) -> list[Point]:
         """Compute points along the tangent line connecting the two arcs.
@@ -271,7 +167,7 @@ class DubinsPath:
         if self.case in [DubinsType.LSL, DubinsType.RSR]:
             return d
 
-        return math.sqrt(d**2 - (4 * self.radius**2))
+        return sqrt(d**2 - (4 * self.radius**2))
 
     def _calc_theta(self) -> float:
         """Compute the angle of the line connecting the tangent points
@@ -301,17 +197,17 @@ class DubinsPath:
         """
         x_i, y_i = self.circles[0].xy
         x_f, y_f = self.circles[1].xy
+        theta = None
 
         if self.case in [DubinsType.LSL, DubinsType.RSR]:
-            return 90 - arctan2((y_f - y_i), (x_f - x_i))
-
-        if self.case == DubinsType.LSR:
+            theta = 90 - arctan2((y_f - y_i), (x_f - x_i))
+        elif self.case == DubinsType.LSR:
             eta = 90 + arctan2((y_f - y_i), (x_f - x_i))
             gamma = arccos(self.d / (2 * self.radius))
+            theta = eta + gamma - 90
+        else:
+            eta = 90 - arctan2((y_f - y_i), (x_f - x_i))
+            gamma = arctan(self.d / (2 * self.radius))
+            theta = eta - gamma + 90
 
-            return eta + gamma - 90
-
-        eta = 90 - arctan2((y_f - y_i), (x_f - x_i))
-        gamma = arctan(self.d / (2 * self.radius))
-
-        return eta - gamma + 90
+        return normalize_angle(theta)
