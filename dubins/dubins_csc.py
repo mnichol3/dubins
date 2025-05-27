@@ -54,7 +54,7 @@ class DubinsCSC(DubinsBase):
         radius: float,
         turns: list[Turn],
     ):
-        """Instantiate a new DubinsPath.
+        """Instantiate a new DubinsCSC.
 
         Parameters
         ----------
