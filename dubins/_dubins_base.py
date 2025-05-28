@@ -1,7 +1,7 @@
 """This module contains the base class for creating Dubins paths."""
 from __future__ import annotations
 from enum import Enum
-from math import pi, floor
+from math import pi
 from typing import TypeAlias
 
 from .point import Circle, Waypoint
