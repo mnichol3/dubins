@@ -1,8 +1,7 @@
 """This module a class to construct Dubins paths in Cartesian space."""
 from __future__ import annotations
-from typing import TypeAlias
-
 from math import sqrt
+from typing import TypeAlias
 
 from ._dubins_base import DubinsBase, DubinsType, Circle, Turn
 from .point import Circle, Waypoint
@@ -15,8 +14,32 @@ Point: TypeAlias = tuple[float, float]
 class DubinsCSC(DubinsBase):
     """Class to compute Curve-Straight-Curve Dubins paths in Cartesian space.
 
+    Attributes
+    ----------
+    origin: Waypoint
+        Fly-to Point defining the beginning of the dubins path.
+    terminus: Waypoint
+            Fly-to Point defining the end of the dubins path.
+    radius: float
+        Turn radius, unitless.
+    length: float
+        Length of the path, unitless.
+    circles: list[Circle]
+        Circles defining the arcs to rotate about to create the path.
+    psi: float
+        Instantaneous platform heading, in degrees (-180, 180].
+    theta: float
+        Heading of the vector connecting the two tangent points of the circles
+        defining the arcs in the curves, in degrees (-180, 180].
+    d: float
+        Length of the vector connecting the two tangent points of the circles
+        defining the arcs in the curves, untiless.
+    case: DubinsType
+        Enum defining the Dubins path type.
+
     Example usage
     -------------
+    >>> from dubins import DubinsCSC, Turn, Waypoint
     >>> origin = Waypoint(10, 0, 60)
     >>> terminus = Waypoint(0, 4, 120)
     >>> radius = 4
@@ -54,7 +77,7 @@ class DubinsCSC(DubinsBase):
         radius: float,
         turns: list[Turn],
     ):
-        """Instantiate a new DubinsCSC.
+        """Instantiate a new DubinsPath.
 
         Parameters
         ----------
@@ -139,6 +162,8 @@ class DubinsCSC(DubinsBase):
             x_p = x_n
             y_p = y_n
             d_sum += delta
+
+        self.length += d_sum
 
         return waypoints
 

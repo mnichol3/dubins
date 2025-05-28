@@ -1,6 +1,5 @@
-from typing import TypeAlias
-
 from math import sqrt
+from typing import TypeAlias
 
 from ._dubins_base import DubinsBase, DubinsType, Circle, Turn
 from .cartesian import calc_fwd
@@ -16,6 +15,39 @@ class DubinsLoopback(DubinsBase):
     Class to construct a Dubins "loopback" path, where the size of the turn
     radius forces the platform to turn away from the terminus point before
     turning back towards it and completing the path.
+
+    Attributes
+    ----------
+    origin: Waypoint
+        Fly-to Point defining the beginning of the dubins path.
+    terminus: Waypoint
+            Fly-to Point defining the end of the dubins path.
+    radius: float
+        Turn radius, unitless.
+    length: float
+        Length of the path, unitless.
+    circles: list[Circle]
+        Circles defining the arcs to rotate about to create the path.
+    psi: float
+        Instantaneous platform heading, in degrees (-180, 180].
+    theta: float
+        Heading of the vector connecting the two tangent points of the circles
+        defining the arcs in the curves, in degrees (-180, 180].
+    d: float
+        Length of the vector connecting the two tangent points of the circles
+        defining the arcs in the curves, untiless.
+    case: DubinsType
+        Enum defining the Dubins path type.
+
+    Example Usage
+    -------------
+    >>> from dubins import DubinsLoopback, Turn, Waypoint
+    >>> origin = Waypoint(10, 0, 0)
+    >>> terminus = Waypoint(0, 4, 180)
+    >>> radius = 6
+    >>> turns = [Turn.LEFT, Turn.LEFT]
+    >>> dub = DubinsLoopback(origin, terminus, radius, turns)
+    >>> points = dub.create_path(delta_psi=1)
     """
 
     case = DubinsType.LOOPBACK
@@ -93,5 +125,7 @@ class DubinsLoopback(DubinsBase):
                 delta_psi))
 
         waypoints.append(calc_fwd(waypoints[-1], self.terminus.crs, self.d))
+
+        self.length += self.d
 
         return waypoints

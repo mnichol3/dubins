@@ -1,6 +1,7 @@
 """This module contains the base class for creating Dubins paths."""
 from __future__ import annotations
 from enum import Enum
+from math import pi
 from typing import TypeAlias
 
 from .point import Circle, Waypoint
@@ -77,7 +78,21 @@ class Turn(Enum):
 
 
 class DubinsBase:
-    """Base class for Dubins paths."""
+    """Base class for Dubins paths.
+
+    Attributes
+    ----------
+    origin: Waypoint
+        Fly-to Point defining the beginning of the dubins path.
+    terminus: Waypoint
+            Fly-to Point defining the end of the dubins path.
+    radius: float
+        Turn radius, unitless.
+    length: float
+        Length of the path, unitless.
+    circles: list[Circle]
+        Circles defining the arcs to rotate about to create the path.
+    """
 
     def __init__(
         self,
@@ -99,6 +114,7 @@ class DubinsBase:
         self.origin = origin
         self.terminus = terminus
         self.radius = radius
+        self.length = 0.
 
     def _init_circle(self, point: Waypoint, turn: Turn) -> Circle:
         """Compute the center a circle to rotate about.
@@ -151,5 +167,6 @@ class DubinsBase:
             ))
 
             self.psi = normalize_angle(self.psi + delta_psi * circle.s)
+            self.length += (pi * self.radius * delta_psi) / 180.
 
         return waypoints
