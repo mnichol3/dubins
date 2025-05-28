@@ -103,9 +103,6 @@ def tan(val: float) -> float:
 
 def normalize_angle(val: float) -> float:
     """Normalize an angle to (-180, 180]."""
-    if val > 180:
-        return val % -360
-    elif val <= -180:
-        return val % 360
+    normalized = ((val + 180) % 360) - 180
 
-    return val
+    return 180 if normalized == -180 else normalized
