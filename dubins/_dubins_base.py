@@ -1,7 +1,7 @@
 """This module contains the base class for creating Dubins paths."""
 from __future__ import annotations
 from enum import Enum
-from math import pi
+from math import pi, floor
 from typing import TypeAlias
 
 from .point import Circle, Waypoint
@@ -159,6 +159,7 @@ class DubinsBase:
         """
         waypoints = []
         psi_f = round(psi_f, 2)
+        theta = 0
 
         while abs(self.psi - psi_f) > delta_psi:
             waypoints.append((
@@ -167,6 +168,8 @@ class DubinsBase:
             ))
 
             self.psi = normalize_angle(self.psi + delta_psi * circle.s)
-            self.length += (pi * self.radius * delta_psi) / 180.
+            theta += delta_psi
+
+        self.length += (pi * self.radius * theta) / 180.
 
         return waypoints
