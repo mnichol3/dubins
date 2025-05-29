@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .cartesian import calc_distance
+from .cartesian import calc_azimuth, calc_distance
 from .mathlib import normalize_angle
 
 
@@ -32,6 +32,10 @@ class PointBase:
     def xy(self) -> tuple[float, float]:
         """Return the x- and y-coordinates."""
         return self.x, self.y
+
+    def azimuth_to(self, p: PointBase) -> float:
+        """Calculate the azimuth from the point to another Point."""
+        return calc_azimuth(self.xy, p.xy)
 
     def distance_to(self, p: PointBase) -> float:
         """Calculate the Euclidean distance from the point to another Point."""

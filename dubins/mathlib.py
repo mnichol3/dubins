@@ -101,8 +101,30 @@ def tan(val: float) -> float:
     return math.tan(math.radians(val))
 
 
+def azimuth(val: float) -> float:
+    """Make sure an azimuth falls in [0, 360]."""
+    return val % 360.
+
+
 def normalize_angle(val: float) -> float:
     """Normalize an angle to (-180, 180]."""
     normalized = ((val + 180) % 360) - 180
 
     return 180 if normalized == -180 else normalized
+
+
+def subtract_azimuths(azi1: float, azi2: float) -> float:
+    """Compute the minimum angle between two azimuths.
+
+    Parameters
+    ----------
+    azi1: float
+    azi2: float
+
+    Returns
+    -------
+    float
+    """
+    diff = abs(azimuth(azi1) - azimuth(azi2))
+
+    return min(diff, 360 - diff)

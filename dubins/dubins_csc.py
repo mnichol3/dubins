@@ -94,9 +94,13 @@ class DubinsCSC(DubinsBase):
         self.case = DubinsType.from_turns(turns)
         self.circles = self._init_circles(turns)
 
-        self.psi = self.origin.crs_norm
-        self.d = self._calc_d()
-        self.theta = self._calc_theta()
+        self.psi = origin.crs_norm
+        if origin.distance_to(terminus) == 2 * radius:
+            self.d = None
+            self.theta = terminus.crs_norm
+        else:
+            self.d = self._calc_d()
+            self.theta = self._calc_theta()
 
     def create_path(
         self,
@@ -119,13 +123,22 @@ class DubinsCSC(DubinsBase):
             X- and y-coordinates of path waypoints.
         """
         waypoints = []
-
         waypoints.extend(
             self._calc_arc_points(self.circles[0], self.theta, delta_psi))
-        waypoints.extend(self._calc_line_points(waypoints[-1], delta_d))
-        waypoints.extend(
-            self._calc_arc_points(
-                self.circles[1], self.terminus.crs_norm, delta_psi))
+
+        if self.d is not None:
+            try:
+                prev_wpt = waypoints[-1]
+            except IndexError:
+                prev_wpt = self.origin.xy
+                waypoints = [prev_wpt]
+
+            waypoints.extend(self._calc_line_points(prev_wpt, delta_d))
+
+        if self.psi != self.terminus.crs_norm:
+            waypoints.extend(
+                self._calc_arc_points(
+                    self.circles[1], self.terminus.crs_norm, delta_psi))
 
         return waypoints
 

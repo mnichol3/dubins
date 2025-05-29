@@ -5,11 +5,6 @@ from .mathlib import arctan2, cos, sin
 from .util import round_return
 
 
-def azimuth(val: float) -> float:
-    """Make sure an azimuth falls in [0, 360]."""
-    return val % 360.
-
-
 def azimuth_to_uangle(azi: float) -> float:
     """Convert an azimuth to its corresponding angle on the unit circle.
 
