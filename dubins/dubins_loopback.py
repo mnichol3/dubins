@@ -4,7 +4,7 @@ from typing import TypeAlias
 from ._dubins_base import DubinsBase, DubinsType, Circle, Turn
 from .cartesian import calc_distance, calc_fwd
 from .point import Circle, Waypoint
-from .mathlib import arccos, cos, normalize_angle, subtract_azimuths
+from .mathlib import arccos, sin, normalize_angle, subtract_azimuths
 
 
 Point: TypeAlias = tuple[float, float]
@@ -86,7 +86,7 @@ class DubinsLoopback(DubinsBase):
         if 89 < wpt_azi < 91:
             track_spacing = self.origin.distance_to(self.terminus)
         else:
-            track_spacing = abs(origin.distance_to(terminus) * cos(wpt_azi))
+            track_spacing = abs(origin.distance_to(terminus) * sin(wpt_azi))
 
         turn1 = Turn.reverse(turns[0])
         h = sqrt((2 * radius)**2 - track_spacing**2)
