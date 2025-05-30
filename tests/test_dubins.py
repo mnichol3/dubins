@@ -1,5 +1,5 @@
 """Tests for classes in dubins.py."""
-from dubins import DubinsPath, DubinsType, Turn
+from dubins import DubinsType, Turn
 
 
 def test_turn():

@@ -123,8 +123,7 @@ class DubinsBase:
         The beta angle is defined as the angle between the vector connecting
         the origin and terminus points and the origin course, in degrees.
         """
-        return subtract_azimuths(
-            self.origin.azimuth_to(self.terminus), self.origin.crs)
+        return self.origin.calc_beta(self.terminus)
 
     def _init_circle(self, point: Waypoint, turn: Turn) -> Circle:
         """Compute the center a circle to rotate about.

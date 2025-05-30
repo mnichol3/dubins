@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from .cartesian import calc_azimuth, calc_distance
-from .mathlib import normalize_angle
+from .mathlib import normalize_angle, subtract_azimuths
 
 
 class PointBase:
@@ -114,6 +114,23 @@ class Waypoint(PointBase):
         super().__init__(x, y)
         self.crs = crs % 360.
         self.crs_norm = round(normalize_angle(self.crs), 2)
+
+    def calc_beta(self, wpt: Waypoint) -> float:
+        """Calculate the beta angle between the Waypoint and another Waypoint.
+
+        The beta angle is defined as the angle between the vector connecting
+        the origin and terminus points and the origin course, in degrees.
+
+        Parameters
+        ----------
+        wpt: Waypoint
+
+        Returns
+        -------
+        float
+            Beta angle, in degrees.
+        """
+        return subtract_azimuths(self.azimuth_to(wpt), self.crs + 180.)
 
     def __repr__(self) -> str:
         """Return a string representation of the object."""
