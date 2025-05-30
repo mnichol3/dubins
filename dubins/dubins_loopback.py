@@ -2,7 +2,7 @@ from math import sqrt
 from typing import TypeAlias
 
 from ._dubins_base import DubinsBase, DubinsType, Circle, Turn
-from .cartesian import calc_fwd
+from .cartesian import calc_distance, calc_fwd
 from .point import Circle, Waypoint
 from .mathlib import arccos, cos, normalize_angle, subtract_azimuths
 
@@ -130,8 +130,7 @@ class DubinsLoopback(DubinsBase):
                 self.terminus.crs_norm,
                 delta_psi))
 
-        waypoints.append(calc_fwd(waypoints[-1], self.terminus.crs, self.d))
-
-        self.length += self.d
+        waypoints.append(self.terminus.xy)
+        self.length += calc_distance(waypoints[-1], self.terminus.xy)
 
         return waypoints

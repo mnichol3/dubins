@@ -1,6 +1,6 @@
 """This module a class to construct Dubins paths in Cartesian space."""
 from __future__ import annotations
-from math import sqrt
+from math import isclose, sqrt
 from typing import TypeAlias
 
 from ._dubins_base import DubinsBase, DubinsType, Circle, Turn
@@ -93,9 +93,10 @@ class DubinsCSC(DubinsBase):
         super().__init__(origin, terminus, radius)
         self.case = DubinsType.from_turns(turns)
         self.circles = self._init_circles(turns)
-
         self.psi = origin.crs_norm
-        if origin.distance_to(terminus) == 2 * radius:
+
+        wpt_dist = origin.distance_to(terminus)
+        if isclose(wpt_dist, 2 * radius, abs_tol=1e-3):
             self.d = None
             self.theta = terminus.crs_norm
         else:
@@ -199,12 +200,12 @@ class DubinsCSC(DubinsBase):
             If the turn radius is too large, attempting to take the square
             root in the last line of the method becomes invalid.
         """
-        d = self.circles[0].distance_to(self.circles[1])
+        dist = self.circles[0].distance_to(self.circles[1])
 
         if self.case in [DubinsType.LSL, DubinsType.RSR]:
-            return d
+            return dist
 
-        return sqrt(d**2 - (4 * self.radius**2))
+        return sqrt(dist**2 - (4 * self.radius**2))
 
     def _calc_theta(self) -> float:
         """Compute the angle of the line connecting the tangent points

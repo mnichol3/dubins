@@ -75,11 +75,7 @@ def get_dubins(
     else:
         wpt_dist = abs(origin.distance_to(terminus) * cos(wpt_azi))
 
-    if wpt_dist < 2 * radius:
-        if are_orthogonal:
-            return DubinsLoopback(origin, terminus, radius, turns)
-
-        return DubinsCSC(
-            origin, terminus, radius, [Turn.reverse(turns[0]), turns[1]])
+    if round(wpt_dist, 2) < 2 * radius:
+        return DubinsLoopback(origin, terminus, radius, turns)
 
     return DubinsCSC(origin, terminus, radius, turns)
