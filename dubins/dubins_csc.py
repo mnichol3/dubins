@@ -95,8 +95,7 @@ class DubinsCSC(DubinsBase):
         self.circles = self._init_circles(turns)
         self.psi = origin.crs_norm
 
-        wpt_dist = origin.distance_to(terminus)
-        if isclose(wpt_dist, 2 * radius, abs_tol=1e-3):
+        if isclose(origin.distance_to(terminus), 2 * radius, abs_tol=1e-3):
             self.d = None
             self.theta = terminus.crs_norm
         else:
