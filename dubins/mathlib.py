@@ -1,15 +1,5 @@
-"""This module contains various math constants and functions.
-
-Constants
----------
-* NMI_2_M: Nautical miles (nmi) to meters conversion factor.
-* M_2_NMI: Meters to nautical miles conversion factor.
-"""
+"""This module contains various math constants and functions."""
 import math
-
-
-NMI_2_M = 1852
-M_2_NMI = round(1 / NMI_2_M, 8)
 
 
 def arccos(val: float) -> float:
