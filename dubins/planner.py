@@ -1,7 +1,7 @@
 from ._dubins_base import Turn
 from .dubins_csc import DubinsCSC
 from .dubins_loopback import DubinsLoopback
-from .mathlib import cos, subtract_azimuths
+from .mathlib import sin, subtract_azimuths
 from .point import Waypoint
 
 
@@ -67,15 +67,27 @@ def get_dubins(
     -------
     DubinsCSC | DubinsLoopback
     """
-    wpt_azi = subtract_azimuths(origin.azimuth_to(terminus), origin.crs)
+    wpt_dist = round(origin.distance_to(terminus), 2)
+    wpt_azi = subtract_azimuths(origin.azimuth_to(terminus), origin.crs + 180)
     are_orthogonal = 89 < wpt_azi < 91
 
     if are_orthogonal:
-        wpt_dist = origin.distance_to(terminus)
+        xtrack_dist = wpt_dist
     else:
-        wpt_dist = abs(origin.distance_to(terminus) * cos(wpt_azi))
+        xtrack_dist = round(
+            abs(origin.distance_to(terminus) * sin(wpt_azi)), 2)
 
-    if round(wpt_dist, 2) < 2 * radius:
-        return DubinsLoopback(origin, terminus, radius, turns)
-
-    return DubinsCSC(origin, terminus, radius, turns)
+    if are_orthogonal:
+        if xtrack_dist < 2 * radius:
+            return DubinsLoopback(origin, terminus, radius, turns)
+        else:
+            return DubinsCSC(origin, terminus, radius, turns)
+    else:
+        if xtrack_dist >= 2 * radius:
+            return DubinsCSC(origin, terminus, radius, turns)
+        else:
+            if wpt_dist > 2 * radius:
+                return DubinsCSC(origin, terminus, radius,
+                                 [turns[0], Turn.reverse(turns[1])])
+            else:
+                return DubinsLoopback(origin, terminus, radius, turns)

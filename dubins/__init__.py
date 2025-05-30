@@ -9,7 +9,7 @@ from ._dubins_base import DubinsType, Turn
 from .dubins_csc import DubinsCSC
 from .dubins_loopback import DubinsLoopback
 from .point import Waypoint
-from .planner import create_path
+from .planner import create_path, get_dubins
 from .plotting import plot_path
 
 __all__ = [
@@ -19,5 +19,6 @@ __all__ = [
     "Turn",
     "Waypoint",
     "create_path",
+    "get_dubins",
     "plot_path",
 ]

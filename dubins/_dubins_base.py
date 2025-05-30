@@ -5,7 +5,7 @@ from math import pi
 from typing import TypeAlias
 
 from .point import Circle, Waypoint
-from .mathlib import cos, sin, normalize_angle
+from .mathlib import cos, sin, normalize_angle, subtract_azimuths
 
 
 Point: TypeAlias = tuple[float, float]
@@ -115,6 +115,16 @@ class DubinsBase:
         self.terminus = terminus
         self.radius = radius
         self.length = 0.
+
+    @property
+    def beta(self) -> float:
+        """Return the beta angle.
+
+        The beta angle is defined as the angle between the vector connecting
+        the origin and terminus points and the origin course, in degrees.
+        """
+        return subtract_azimuths(
+            self.origin.azimuth_to(self.terminus), self.origin.crs)
 
     def _init_circle(self, point: Waypoint, turn: Turn) -> Circle:
         """Compute the center a circle to rotate about.
