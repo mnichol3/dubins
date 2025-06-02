@@ -22,7 +22,7 @@ points = dub.create_path(delta_psi=delta_psi, delta_d=delta_d)
 
 plot_path(points, dub.circles)
 ```
-![alt text](https://github.com/mnichol3/dubins/blob/master/example/example.png "Example RSL path")
+![alt text](https://github.com/mnichol3/dubins/blob/master/examples/example_csc.png "Example RSL path")
 
 
 ## References
