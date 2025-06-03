@@ -68,14 +68,15 @@ def get_dubins(
     DubinsCSC | DubinsLoopback
     """
     wpt_dist = round(origin.distance_to(terminus), 2)
-    wpt_azi = subtract_azimuths(origin.azimuth_to(terminus), origin.crs + 180)
-    are_orthogonal = 89 < wpt_azi < 91
+    wpt_crs = origin.course_to(terminus)
+    are_orthogonal = (89 < wpt_crs < 91) or (269 < wpt_crs < 271)
 
     if are_orthogonal:
         xtrack_dist = wpt_dist
     else:
         xtrack_dist = round(
-            abs(origin.distance_to(terminus) * sin(wpt_azi)), 2)
+            abs(origin.distance_to(terminus)
+                * sin(beta = origin.calc_beta(terminus))), 2)
 
     if are_orthogonal:
         if xtrack_dist < 2 * radius:

@@ -2,6 +2,83 @@
 import math
 
 
+def calc_azimuth(
+    point1: tuple[float, float],
+    point2: tuple[float, float],
+) -> float:
+    """Calculate the azimuth of the vector defined by two points in the
+    Cartesian plane.
+
+    Parameters
+    ----------
+    point1: tuple of float, float
+        Point 1 x- and y-coordinates.
+    point2: tuple of float, float
+        Point 2 x- and y-coordinates.
+
+    Returns
+    -------
+    float
+        Azimuth, in degrees from positive y-axis.
+    """
+    x1, y1 = point1
+    x2, y2 = point2
+
+    return arctan2((x2-x1), (y2-y1)) % 360.
+
+
+def calc_distance(
+    point1: tuple[float, float],
+    point2: tuple[float, float],
+) -> float:
+    """Calculate the Euclidean distance of the vector defined by two points.
+
+    Parameters
+    ----------
+    point1: tuple of float, float
+        Point 1 x- and y-coordinates.
+    point2: tuple of float, float
+        Point 2 x- and y-coordinates.
+
+    Returns
+    -------
+    float
+        Unitless Euclidean distance.
+    """
+    x1, y1 = point1
+    x2, y2 = point2
+
+    return math.sqrt((x2-x1)**2 + (y2-y1)**2)
+
+
+def calc_fwd(
+    origin: tuple[float, float],
+    azimuth: float,
+    dist: float,
+) -> tuple[float, float]:
+    """Calculate the coordinates of a new point in the Cartesian plane given
+    a starting point, azimuth, and distance.
+
+    Parameters
+    ----------
+    origin: tuple of float, float
+        Origin x- and y-coordinates.
+    azimuth: float
+        Azimuth to move along.
+    dist: float
+        Unitless distance.
+
+    Returns
+    -------
+    tuple of float, float
+        X- and y-coodinates of the new point.
+    """
+    x, y = origin
+    azimuth %= 360.
+
+    return x + dist * sin(azimuth), y + dist * cos(azimuth)
+
+
 def arccos(val: float) -> float:
     """Compute the trigonometric inverse cosine and return the value
     in degrees."""

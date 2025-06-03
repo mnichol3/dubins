@@ -1,7 +1,7 @@
-"""Tests for functions in cartesian.py"""
+"""Tests for functions in methlib.py"""
 import pytest
 
-from dubins import cartesian
+from dubins.mathlib import azimuth_to_uangle, calc_azimuth, calc_fwd
 
 
 @pytest.mark.parametrize(
@@ -37,7 +37,7 @@ def test_azimuth_to_uangle(azi: float, expected: float) -> None:
     ------
     AssertionError
     """
-    assert cartesian.azimuth_to_uangle(azi) == expected
+    assert azimuth_to_uangle(azi) == expected
 
 
 @pytest.mark.parametrize(
@@ -76,7 +76,7 @@ def test_calc_azimuth(
     ------
     AssertionError
     """
-    assert cartesian.calc_azimuth(point1, point2) == expected
+    assert calc_azimuth(point1, point2) == expected
 
 
 @pytest.mark.parametrize(
@@ -114,4 +114,4 @@ def test_calc_fwd(
     ------
     AssertionError
     """
-    assert cartesian.calc_fwd(origin, azimuth, dist) == expected
+    assert calc_fwd(origin, azimuth, dist) == expected

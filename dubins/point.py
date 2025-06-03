@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from .cartesian import calc_azimuth, calc_distance
-from .mathlib import normalize_angle, subtract_azimuths
+from .mathlib import (
+    calc_azimuth, calc_distance, normalize_angle, subtract_azimuths)
 
 
 class PointBase:
@@ -9,9 +9,9 @@ class PointBase:
 
      Attributes
     ----------
-    * x: float
+    x: float
         X-coordinate.
-    * y: float
+    y: float
         Y-coordinate.
     """
 
@@ -51,11 +51,11 @@ class Circle(PointBase):
 
     Attributes
     ----------
-    * x: float
+    x: float
         X-coordinate of the Circle center.
-    * y: float
+    y: float
         Y-coordinate of the Circle center.
-    * s: int
+    s: int
         Rotation direction. 1 for clockwise, -1 for counter-clockwise.
     """
 
@@ -83,19 +83,78 @@ class Circle(PointBase):
         return f'<{self.__class__.__name__} ({self.x}, {self.y}), s={self.s}>'
 
 
+class IntermediatePoint(PointBase):
+    """Container for intermediate points along the Dubins path.
+
+    Attributes
+    ----------
+    x: float
+        Waypoint x-coordinate.
+    y: float
+        Waypoint y-coordinate.
+    crs: float
+        Course, in degrees [0, 360).
+    crs_norm: float
+        Course, in degrees, normalized to (-180, 180].
+    seg_length: float
+        Length of the segment connecting the IntermediatePoint to the previous
+        IntermediatePoint.
+    """
+
+    def __init__(self, x: float, y: float, crs_norm: float, seg_length: float):
+        """Instantiate a new Waypoint.
+
+        Parameters
+        ----------
+        x: float
+            X-coordinate of the center of the waypoint.
+        y: float
+            Y-coordinate of the center of the waypoint.
+        crs_norm: int
+            Inbound course defined over (-180, 180].
+        seg_length: float
+            Length of the segment connecting the IntermediatePoint to the
+            previous IntermediatePoint.
+        """
+        super().__init__(x, y)
+        self.crs_norm = round(crs_norm, 2)
+        self.crs = round(crs_norm % 360., 2)
+        self.seg_length = seg_length
+
+    @classmethod
+    def from_waypoint(
+        cls,
+        wpt: Waypoint,
+        seg_length: float = 0.,
+    ) -> IntermediatePoint:
+        """Instantiate a IntermediatePoint from a Waypoint.
+
+        Parameters
+        -----------
+        wpt: Waypoint
+        seg_length: float, optional
+            Segment length. Default is 0.
+
+        Returns
+        -------
+        IntermediatePoint
+        """
+        return cls(*wpt.xy, wpt.crs_norm, seg_length)
+
+
 class Waypoint(PointBase):
     """Container for a waypoint consisting of an x-coordinate, y-coordinate,
     and an inbound course.
 
     Attributes
     ----------
-    * x: float
+    x: float
         Waypoint x-coordinate.
-    * y: float
+    y: float
         Waypoint y-coordinate.
-    * crs: float
+    crs: float
         Course, in degrees [0, 360).
-    * crs_norm: float
+    crs_norm: float
         Course, in degrees, normalized to (-180, 180].
     """
 
@@ -131,6 +190,23 @@ class Waypoint(PointBase):
             Beta angle, in degrees.
         """
         return subtract_azimuths(self.azimuth_to(wpt), self.crs + 180.)
+
+    def course_to(self, wpt: Waypoint) -> float:
+        """Calculate the course from the Waypoint to another Waypoint.
+
+        The is similar to Waypoint.azimuth_to(), but takes the origin
+        Waypoint's course into account.
+
+        Parameters
+        ----------
+        wpt: Waypoint
+
+        Returns
+        -------
+        float
+            Beta angle, in degrees.
+        """
+        return (self.azimuth_to(wpt) - self.crs) % 360.
 
     def __repr__(self) -> str:
         """Return a string representation of the object."""

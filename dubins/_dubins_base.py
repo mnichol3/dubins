@@ -4,8 +4,8 @@ from enum import Enum
 from math import pi
 from typing import TypeAlias
 
-from .point import Circle, Waypoint
-from .mathlib import cos, sin, normalize_angle, subtract_azimuths
+from .point import Circle, IntermediatePoint, Waypoint
+from .mathlib import cos, sin, normalize_angle
 
 
 Point: TypeAlias = tuple[float, float]
@@ -150,7 +150,7 @@ class DubinsBase:
         circle: Circle,
         psi_f: float,
         delta_psi: float,
-    ) -> list[Point]:
+    ) -> list[IntermediatePoint]:
         """Compute the points along an arc defined by a circle.
 
         Parameters
@@ -164,21 +164,60 @@ class DubinsBase:
 
         Returns
         -------
-        list of Point
+        list of IntermediatePoint
         """
         waypoints = []
         psi_f = round(psi_f, 2)
         theta = 0
 
         while abs(self.psi - psi_f) > delta_psi:
-            waypoints.append((
+            curr_point = IntermediatePoint(
                 circle.x - (circle.s * self.radius * sin(90 - self.psi)),
                 circle.y + (circle.s * self.radius * cos(90 - self.psi)),
-            ))
+                self.psi,
+                (pi * self.radius * delta_psi) / 180.,
+            )
+            waypoints.append(curr_point)
 
             self.psi = normalize_angle(self.psi + delta_psi * circle.s)
             theta += delta_psi
 
         self.length += (pi * self.radius * theta) / 180.
+
+        return waypoints
+
+    def _calc_line_points(
+        self,
+        origin: Point,
+        delta: float,
+    ) -> list[IntermediatePoint]:
+        """Compute points along the tangent line connecting the two arcs.
+
+        Parameters
+        ----------
+        origin: Point
+            origin x- and y-coordinate.
+        delta: float
+            Distance delta.
+
+        Returns
+        -------
+        list of IntermediatePoint
+        """
+        waypoints = []
+        d_sum = 0
+        x_p, y_p = origin.xy
+        d_max = self.d - (delta / 2) # prevent overrun
+
+        while d_sum < d_max:
+            x_n = x_p + delta * sin(self.theta)
+            y_n = y_p + delta * cos(self.theta)
+            waypoints.append(IntermediatePoint(x_n, y_n, self.psi, delta))
+
+            x_p = x_n
+            y_p = y_n
+            d_sum += delta
+
+        self.length += d_sum
 
         return waypoints

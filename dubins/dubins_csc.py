@@ -4,8 +4,8 @@ from math import isclose, sqrt
 from typing import TypeAlias
 
 from ._dubins_base import DubinsBase, DubinsType, Circle, Turn
-from .point import Circle, Waypoint
-from .mathlib import arccos, arctan, arctan2, cos, sin, normalize_angle
+from .point import Circle, IntermediatePoint, Waypoint
+from .mathlib import arccos, arctan, arctan2, normalize_angle
 
 
 Point: TypeAlias = tuple[float, float]
@@ -77,7 +77,7 @@ class DubinsCSC(DubinsBase):
         radius: float,
         turns: list[Turn],
     ):
-        """Instantiate a new DubinsPath.
+        """Instantiate a new DubinsCSC.
 
         Parameters
         ----------
@@ -106,7 +106,7 @@ class DubinsCSC(DubinsBase):
         self,
         delta_psi: float = 1,
         delta_d: float = 0.5,
-    ) -> list[Point]:
+    ) -> list[IntermediatePoint]:
         """Construct a LSL or RSR path.
 
         Parameters
@@ -119,8 +119,8 @@ class DubinsCSC(DubinsBase):
 
         Returns
         -------
-        list of Point
-            X- and y-coordinates of path waypoints.
+        list of IntermediatePoint
+            IntermediatePoints forming the Dubins path.
         """
         waypoints = []
         waypoints.extend(
@@ -130,7 +130,7 @@ class DubinsCSC(DubinsBase):
             try:
                 prev_wpt = waypoints[-1]
             except IndexError:
-                prev_wpt = self.origin.xy
+                prev_wpt = IntermediatePoint.from_waypoint(self.origin)
                 waypoints = [prev_wpt]
 
             waypoints.extend(self._calc_line_points(prev_wpt, delta_d))
@@ -147,38 +147,6 @@ class DubinsCSC(DubinsBase):
         return [
             self._init_circle(point, t)
             for point, t in zip([self.origin, self.terminus], turns)]
-
-    def _calc_line_points(self, origin: Point, delta: float) -> list[Point]:
-        """Compute points along the tangent line connecting the two arcs.
-
-        Parameters
-        ----------
-        origin: Point
-            origin x- and y-coordinate.
-        delta: float
-            Distance delta.
-
-        Returns
-        -------
-        list of Point
-        """
-        waypoints = []
-        d_sum = 0
-        x_p, y_p = origin
-        d_max = self.d - (delta / 2) # prevent overrun
-
-        while d_sum < d_max:
-            x_n = x_p + delta * sin(self.theta)
-            y_n = y_p + delta * cos(self.theta)
-            waypoints.append((x_n, y_n))
-
-            x_p = x_n
-            y_p = y_n
-            d_sum += delta
-
-        self.length += d_sum
-
-        return waypoints
 
     def _calc_d(self) -> float:
         """Calculate the length of the line segment connecting the tangent

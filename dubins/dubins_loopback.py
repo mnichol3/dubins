@@ -2,9 +2,9 @@ from math import sqrt
 from typing import TypeAlias
 
 from ._dubins_base import DubinsBase, DubinsType, Circle, Turn
-from .cartesian import calc_distance, calc_fwd
-from .point import Circle, Waypoint
-from .mathlib import arccos, sin, normalize_angle, subtract_azimuths
+from .point import Circle, IntermediatePoint, Waypoint
+from .mathlib import (
+    calc_distance, calc_fwd, arccos, sin, normalize_angle, subtract_azimuths)
 
 
 Point: TypeAlias = tuple[float, float]
@@ -103,7 +103,11 @@ class DubinsLoopback(DubinsBase):
         self.theta = normalize_angle(a + (90 * turn1.value))
         self.psi = origin.crs_norm
 
-    def create_path(self, delta_psi: float = 1) -> list[Point]:
+    def create_path(
+        self,
+        delta_d = 1,
+        delta_psi: float = 1,
+    ) -> list[IntermediatePoint]:
         """Construct a LSL or RSR path.
 
         Parameters
@@ -116,8 +120,8 @@ class DubinsLoopback(DubinsBase):
 
         Returns
         -------
-        list of Point
-            X- and y-coordinates of path waypoints.
+        list of IntermediatePoint
+            IntermediatePoints forming the Dubins path.
         """
         waypoints = []
 
@@ -130,7 +134,11 @@ class DubinsLoopback(DubinsBase):
                 self.terminus.crs_norm,
                 delta_psi))
 
-        waypoints.append(self.terminus.xy)
-        self.length += calc_distance(waypoints[-1], self.terminus.xy)
+        if waypoints[-1].distance_to(self.terminus) > delta_d:
+            self.d = waypoints[-1].distance_to(self.terminus)
+            self.theta = self.terminus.crs_norm
+            waypoints.extend(self._calc_line_points(waypoints[-1], delta_d))
+
+        self.length += calc_distance(waypoints[-1].xy, self.terminus.xy)
 
         return waypoints
