@@ -1,7 +1,7 @@
 from ._dubins_base import Turn
 from .dubins_csc import DubinsCSC
 from .dubins_loopback import DubinsLoopback
-from .mathlib import sin, subtract_azimuths
+from .mathlib import sin
 from .point import Waypoint
 
 
@@ -76,7 +76,7 @@ def get_dubins(
     else:
         xtrack_dist = round(
             abs(origin.distance_to(terminus)
-                * sin(beta = origin.calc_beta(terminus))), 2)
+                * sin(origin.calc_beta(terminus))), 2)
 
     if are_orthogonal:
         if xtrack_dist < 2 * radius:
