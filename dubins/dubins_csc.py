@@ -96,7 +96,7 @@ class DubinsCSC(DubinsBase):
         self.psi = origin.crs_norm
 
         if isclose(origin.distance_to(terminus), 2 * radius, abs_tol=1e-3):
-            self.d = None
+            self.d = -1
             self.theta = terminus.crs_norm
         else:
             self.d = self._calc_d()
@@ -126,7 +126,7 @@ class DubinsCSC(DubinsBase):
         waypoints.extend(
             self._calc_arc_points(self.circles[0], self.theta, delta_psi))
 
-        if self.d is not None:
+        if self.d != -1:
             try:
                 prev_wpt = waypoints[-1]
             except IndexError:

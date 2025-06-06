@@ -115,6 +115,8 @@ class DubinsBase:
         self.terminus = terminus
         self.radius = radius
         self.length = 0.
+        self.d = 0.
+        self.theta = 0.
 
     @property
     def beta(self) -> float:
@@ -188,14 +190,14 @@ class DubinsBase:
 
     def _calc_line_points(
         self,
-        origin: Point,
+        origin: IntermediatePoint,
         delta: float,
     ) -> list[IntermediatePoint]:
         """Compute points along the tangent line connecting the two arcs.
 
         Parameters
         ----------
-        origin: Point
+        origin: IntermediatePoint
             origin x- and y-coordinate.
         delta: float
             Distance delta.

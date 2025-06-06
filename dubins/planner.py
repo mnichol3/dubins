@@ -2,16 +2,16 @@ from ._dubins_base import Turn
 from .dubins_csc import DubinsCSC
 from .dubins_loopback import DubinsLoopback
 from .mathlib import sin
-from .point import Waypoint
+from .point import IntermediatePoint, Waypoint
 
 
 def create_path(
     origin: Waypoint,
     terminus: Waypoint,
     radius: float,
-    turns: Turn,
+    turns: list[Turn],
     **kwargs,
-) -> list[tuple[float, float]]:
+) -> list[IntermediatePoint]:
     """Create a Dubins path and return the waypoints.
 
     This function handles the determination of which Dubins class to use
@@ -33,8 +33,8 @@ def create_path(
 
     Returns
     -------
-    list of tuple[float, float]
-        Dubins path waypoint x- and y-coordinates.
+    list of IntermediatePoint
+        IntermediatePoints forming the Dubins path.
     """
     d = get_dubins(origin, terminus, radius, turns)
 
@@ -48,7 +48,7 @@ def get_dubins(
     origin: Waypoint,
     terminus: Waypoint,
     radius: float,
-    turns: Turn,
+    turns: list[Turn],
 ) -> DubinsCSC | DubinsLoopback:
     """Instantiate and return a Dubins class.
 
@@ -61,7 +61,7 @@ def get_dubins(
     radius: float
         Turn radius, in meters.
     turns: list[Turn]
-            Turns to execute. Must have a length of 2.
+        Turns to execute. Must have a length of 2.
 
     Returns
     -------
