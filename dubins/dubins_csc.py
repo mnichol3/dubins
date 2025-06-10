@@ -5,7 +5,7 @@ from typing import TypeAlias
 
 from ._dubins_base import DubinsBase, DubinsType, Circle, Turn
 from .point import Circle, IntermediatePoint, Waypoint
-from .mathlib import arccos, arctan, arctan2, normalize_angle
+from .mathlib import arccos, arcsin, arctan, arctan2, normalize_angle
 
 
 Point: TypeAlias = tuple[float, float]
@@ -57,13 +57,18 @@ class DubinsCSC(DubinsBase):
     -----
     * Contains the following equation & algorithm corrections:
         * Eq. 14 is given as:
-            gamma = arctan((2 * radius) / d),
-          however its correct form is:
-            gamma = arctan(d / (2 * radius))
-        * Eq. 20 is given as:
-            gamma = arccos((2 * radius) / d)
-          however its correct form is:
-            gamma = arccos(d / (2 * radius))
+                gamma = arctan((2 * radius) / d),
+              however its correct form is:
+                gamma = arctan(d / (2 * radius))
+        * Eq. 20:
+            * Eta is given as:
+                n = 90 + arctan...
+                however its correct form is:
+                n = 90 - arctan...
+            * Gamma is given as:
+                g = arccos((2 * radius) / d)
+                however its correct form is:
+                g = arctan(d / (2 * radius))
         * The descriptions of the algorithms for all 4 Dubins path types
           (RSR, RSL, LSL, LSR) state psi_n shall start at 0. It should instead
           start at the aircraft's heading measured from the positive y-axis
@@ -95,7 +100,11 @@ class DubinsCSC(DubinsBase):
         self.circles = self._init_circles(turns)
         self.psi = origin.crs_norm
 
-        if isclose(origin.distance_to(terminus), 2 * radius, abs_tol=1e-3):
+        if (
+            89 <= abs(origin.calc_beta(terminus)) <= 91
+            and isclose(origin.distance_to(terminus), 2*radius, abs_tol=1e-3)
+        ):
+            # Hemisphere case
             self.d = -1
             self.theta = terminus.crs_norm
         else:
@@ -195,10 +204,15 @@ class DubinsCSC(DubinsBase):
                 gamma = arctan((2 * radius) / d),
               however its correct form is:
                 gamma = arctan(d / (2 * radius))
-            * Eq. 20 is given as:
-                gamma = arccos((2 * radius) / d)
-              however its correct form is:
-                gamma = arccos(d / (2 * radius))
+            * Eq. 20:
+                * Eta is given as:
+                    n = 90 + arctan...
+                  however its correct form is:
+                    n = 90 - arctan...
+                * Gamma is given as:
+                    g = arccos((2 * radius) / d)
+                  however its correct form is:
+                    g = arctan(d / (2 * radius))
         """
         x_i, y_i = self.circles[0].xy
         x_f, y_f = self.circles[1].xy
@@ -207,10 +221,11 @@ class DubinsCSC(DubinsBase):
         if self.case in [DubinsType.LSL, DubinsType.RSR]:
             theta = 90 - arctan2((y_f - y_i), (x_f - x_i))
         elif self.case == DubinsType.LSR:
-            eta = 90 + arctan2((y_f - y_i), (x_f - x_i))
-            gamma = arccos(self.d / (2 * self.radius))
+            eta = 90 - arctan2((y_f - y_i), (x_f - x_i))
+            gamma = arctan(self.d / (2 * self.radius))
             theta = eta + gamma - 90
         else:
+            # RSL case
             eta = 90 - arctan2((y_f - y_i), (x_f - x_i))
             gamma = arctan(self.d / (2 * self.radius))
             theta = eta - gamma + 90

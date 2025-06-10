@@ -81,12 +81,11 @@ class DubinsLoopback(DubinsBase):
         """
         super().__init__(origin, terminus, radius)
 
-        wpt_azi = subtract_azimuths(origin.azimuth_to(terminus), origin.crs)
-
-        if 89 < wpt_azi < 91:
+        beta = origin.calc_beta(terminus)
+        if 89 < beta < 91:
             track_spacing = self.origin.distance_to(self.terminus)
         else:
-            track_spacing = abs(origin.distance_to(terminus) * sin(wpt_azi))
+            track_spacing = abs(origin.distance_to(terminus) * sin(beta))
 
         turn1 = Turn.reverse(turns[0])
         h = sqrt((2 * radius)**2 - track_spacing**2)

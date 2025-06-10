@@ -209,7 +209,7 @@ class DubinsBase:
         waypoints = []
         d_sum = 0
         x_p, y_p = origin.xy
-        d_max = self.d - (delta / 2) # prevent overrun
+        d_max = self.d - delta # prevent overrun
 
         while d_sum < d_max:
             x_n = x_p + delta * sin(self.theta)

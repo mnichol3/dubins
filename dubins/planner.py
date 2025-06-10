@@ -87,7 +87,7 @@ def get_dubins(
         if xtrack_dist >= 2 * radius:
             return DubinsCSC(origin, terminus, radius, turns)
         else:
-            if wpt_dist > 2 * radius:
+            if wpt_dist >= 2 * radius:
                 return DubinsCSC(origin, terminus, radius,
                                  [turns[0], Turn.reverse(turns[1])])
             else:
