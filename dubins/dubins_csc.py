@@ -5,7 +5,7 @@ from typing import TypeAlias
 
 from ._dubins_base import DubinsBase, DubinsType, Circle, Turn
 from .point import Circle, IntermediatePoint, Waypoint
-from .mathlib import arccos, arcsin, arctan, arctan2, normalize_angle
+from .mathlib import arctan, arctan2, normalize_angle
 
 
 Point: TypeAlias = tuple[float, float]
