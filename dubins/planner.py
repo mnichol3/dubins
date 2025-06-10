@@ -1,7 +1,9 @@
+from math import ceil
+
 from ._dubins_base import Turn
 from .dubins_csc import DubinsCSC
 from .dubins_loopback import DubinsLoopback
-from .mathlib import sin
+from .mathlib import calc_fwd, sin
 from .point import IntermediatePoint, Waypoint
 
 
@@ -68,8 +70,8 @@ def get_dubins(
     DubinsCSC | DubinsLoopback
     """
     wpt_dist = round(origin.distance_to(terminus), 2)
-    wpt_crs = origin.course_to(terminus)
-    are_orthogonal = (89 < wpt_crs < 91) or (269 < wpt_crs < 271)
+    beta = origin.calc_beta(terminus)
+    are_orthogonal = (89 < beta < 91) or (269 < beta < 271)
 
     if are_orthogonal:
         xtrack_dist = wpt_dist
@@ -87,8 +89,23 @@ def get_dubins(
         if xtrack_dist >= 2 * radius:
             return DubinsCSC(origin, terminus, radius, turns)
         else:
-            if wpt_dist >= 2 * radius:
-                return DubinsCSC(origin, terminus, radius,
-                                 [turns[0], Turn.reverse(turns[1])])
-            else:
-                return DubinsLoopback(origin, terminus, radius, turns)
+            # if wpt_dist >= 2 * radius:
+            #     return DubinsCSC(origin, terminus, radius,
+            #                      [turns[0], Turn.reverse(turns[1])])
+            # else:
+
+            loopback = DubinsLoopback(origin, terminus, radius, turns)
+
+            if beta > 90:
+                delta_y = wpt_dist * sin(beta - 90)
+                if delta_y > loopback.d:
+                    origin = Waypoint(
+                        *calc_fwd(origin.xy, origin.crs,
+                                  ceil(abs(loopback.d - delta_y))),
+                        origin.crs,
+                    )
+
+                    return DubinsLoopback(origin, terminus, radius, turns)
+
+
+            return loopback

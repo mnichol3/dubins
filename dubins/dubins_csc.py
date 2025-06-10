@@ -114,17 +114,17 @@ class DubinsCSC(DubinsBase):
     def create_path(
         self,
         delta_psi: float = 1,
-        delta_d: float = 0.5,
+        delta_d: float = 1,
     ) -> list[IntermediatePoint]:
         """Construct a LSL or RSR path.
 
         Parameters
         ----------
         delta_psi: float, optional
-            Interval at which to compute arc points, in degrees. Default is 10.
+            Interval at which to compute arc points, in degrees. Default is 1.
         delta_d: float, optional
             Interval at which to compute tangent line connecting the two
-            circles, in meters. Default is 10.
+            circles, in meters. Default is 1.
 
         Returns
         -------
